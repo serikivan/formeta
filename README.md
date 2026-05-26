@@ -128,3 +128,7 @@ docker-compose.cuda.yml override для NVIDIA GPU
 - `.venv/`, `node_modules/`, `__pycache__/`, `.pytest_cache/`;
 - `data/input`, `data/processed`, `data/results`, `data/models`, `data/sources`;
 - `reference/`, локальные логи, скриншоты проверок, временные каталоги и `output/`.
+```bash
+git status
+docker compose build
+```
