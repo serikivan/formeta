@@ -1,0 +1,13 @@
+services:
+  formula-graph:
+    build:
+      args:
+        RUNTIME_IMAGE: nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+        INSTALL_SYSTEM_PYTHON: "true"
+        PADDLE_VARIANT: cuda
+        FG_DEVICE: gpu
+    environment:
+      FG_DEVICE: gpu
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    gpus: all

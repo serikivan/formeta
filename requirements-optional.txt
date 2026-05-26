@@ -1,0 +1,8 @@
+# Optional OCR, formula recognition and local semantic packages.
+# Install after the base stack only when GPU/RAM and dependency versions are acceptable.
+pix2tex==0.1.4
+texify==0.2.1
+torch==2.7.0
+transformers==4.51.3
+sentence-transformers==4.1.0
+ollama==0.4.7

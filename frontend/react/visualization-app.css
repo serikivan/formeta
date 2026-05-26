@@ -1,0 +1,324 @@
+.rfProjection {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 10px;
+  height: calc(100vh - var(--header-height) - 28px);
+  min-height: 620px;
+}
+
+.rfProjectionTop,
+.rfProjectionModes,
+.rfProjectionControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.rfProjectionTop > div {
+  display: grid;
+  gap: 4px;
+}
+
+.rfProjectionTop span,
+.rfMuted,
+.rfDetailsHeader span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.rfProjectionModes {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.rfProjectionModes button.active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff8ec !important;
+}
+
+.rfProjectionControls {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.rfProjectionControls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rfHiddenCounters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rfHiddenCounters span {
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fffdf9;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rfProjectionBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 25vw, 430px);
+  gap: 12px;
+  min-height: 0;
+}
+
+.rfProjectionCanvas,
+.rfDetails {
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf9;
+  overflow: hidden;
+}
+
+.rfProjectionCanvas {
+  position: relative;
+}
+
+.rfProjectionCanvas .react-flow {
+  width: 100%;
+  height: 100%;
+}
+
+.rfFlowControls {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 5;
+  display: grid;
+  gap: 6px;
+}
+
+.rfFlowControls button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid #d8c3aa;
+  border-radius: 8px;
+  background: #fff8ed;
+  color: #4c3216;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgb(63 40 10 / 0.12);
+}
+
+.rfFlowControls button:hover {
+  border-color: var(--accent);
+  background: #ffe8c5;
+}
+
+.rfProjectionLoading {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--muted);
+}
+
+.rfProjectionLoading.error {
+  color: #9f1d1d;
+}
+
+.rfDetails {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 12px;
+  overflow: auto;
+}
+
+.rfDetailsHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.rfDetailsBody {
+  display: grid;
+  gap: 9px;
+}
+
+.rfDetailField {
+  display: grid;
+  gap: 4px;
+}
+
+.rfDetailField > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.rfDetailField > strong,
+.rfDetailField > pre {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #ead8c5;
+  border-radius: 7px;
+  background: #fffaf4;
+  color: #2f2418;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.rfNode {
+  display: grid;
+  position: relative;
+  gap: 3px;
+  min-width: 96px;
+  max-width: 170px;
+  padding: 9px 11px;
+  border: 1px solid #d8c3aa;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 16px rgb(45 26 0 / 0.07);
+}
+
+.rfHandle {
+  width: 1px !important;
+  height: 1px !important;
+  border: 0 !important;
+  background: transparent !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rfNode span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rfNode strong {
+  overflow: hidden;
+  color: #24170a;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rfNode.chip {
+  min-width: 72px;
+  max-width: 110px;
+  padding: 6px 8px;
+}
+
+.rfNode.compact {
+  opacity: 0.92;
+}
+
+.rfNode-formula {
+  border-color: #9bbbf0;
+  background: #f5f9ff;
+}
+
+.rfNode-variable {
+  border-color: #93d1b7;
+  background: #f4fbf7;
+}
+
+.rfNode-definition,
+.rfNode-context {
+  border-color: #d7b9ef;
+  background: #fbf7ff;
+}
+
+.rfNode-section {
+  border-color: #d6c0a8;
+  background: #fff5e7;
+}
+
+.rfNode-metaedge {
+  border-color: #c6b58c;
+  background: #fff8dc;
+}
+
+.rfNode-ast {
+  border-color: #b8c6d8;
+  background: #f7fbff;
+}
+
+.react-flow__edge-path {
+  stroke: #876333;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.rfEdge-depends_on .react-flow__edge-path,
+.rfEdge-formula_dependency .react-flow__edge-path,
+.rfEdge-formula_references_formula .react-flow__edge-path {
+  stroke: #bd4f4f;
+}
+
+.rfEdge-uses_variable .react-flow__edge-path,
+.rfEdge-appears_in .react-flow__edge-path {
+  stroke: #278665;
+}
+
+.rfEdge-has_context .react-flow__edge-path,
+.rfEdge-defines .react-flow__edge-path {
+  stroke: #7f56c5;
+}
+
+.rfEdge-structural .react-flow__edge-path,
+.rfEdge-section_contains_formula .react-flow__edge-path,
+.rfEdge-section_definitions .react-flow__edge-path,
+.rfEdge-in_section .react-flow__edge-path {
+  stroke: #b9a48c;
+  stroke-dasharray: 5 5;
+}
+
+.rfEdge-variable .react-flow__edge-path {
+  stroke: #278665;
+}
+
+.rfEdge-dependency .react-flow__edge-path {
+  filter: drop-shadow(0 1px 0 rgb(255 253 249 / 0.82));
+}
+
+.rfEdge-ast .react-flow__edge-path {
+  stroke: #8b97a6;
+  stroke-dasharray: 3 4;
+}
+
+.react-flow__edge-text {
+  fill: #4c3a26;
+  font-size: 10px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: #fffdf9;
+  stroke-width: 3px;
+}
+
+.react-flow__edge-textbg {
+  fill: #fffdf9;
+  fill-opacity: 0.88;
+}
+
+@media (max-width: 1100px) {
+  .rfProjection {
+    height: auto;
+  }
+
+  .rfProjectionBody {
+    grid-template-columns: 1fr;
+  }
+
+  .rfProjectionCanvas {
+    height: 68vh;
+  }
+}

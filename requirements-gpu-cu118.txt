@@ -1,0 +1,5 @@
+# CUDA 11.8 build for PaddleOCR/PaddleX on NVIDIA GPUs.
+# Installs the common app dependencies and PaddlePaddle GPU wheel.
+-r requirements-common.txt
+--extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu118/
+paddlepaddle-gpu==3.0.0

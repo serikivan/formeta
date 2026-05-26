@@ -1,0 +1,21 @@
+services:
+  formula-graph:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RUNTIME_IMAGE: ${RUNTIME_IMAGE:-python:3.11-slim}
+        INSTALL_SYSTEM_PYTHON: ${INSTALL_SYSTEM_PYTHON:-false}
+        PADDLE_VARIANT: ${PADDLE_VARIANT:-cpu}
+        FG_DEVICE: ${FG_DEVICE:-cpu}
+    ports:
+      - "8000:8000"
+    environment:
+      FG_DATA_DIR: /app/data
+      FG_DEVICE: ${FG_DEVICE:-cpu}
+      FG_ENABLE_PADDLE: "true"
+      FG_STORAGE_RETENTION_DAYS: "14"
+      FG_STORAGE_MAX_DOCUMENTS: "30"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

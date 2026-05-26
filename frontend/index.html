@@ -1,0 +1,226 @@
+﻿<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Обработка научных статей</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+    <link rel="stylesheet" href="./assets/styles.css?v=20260526-ui1" />
+    <link rel="stylesheet" href="./assets/visualization-react.css?v=20260525-rf5" />
+  </head>
+  <body data-page="home">
+    <div id="sidebarBackdrop" class="sidebarBackdrop" hidden></div>
+    <div class="appFrame">
+      <aside class="sidebar" aria-label="Навигация приложения">
+        <div id="apiStatus" class="status">API: проверка...</div>
+        <nav class="pageNav">
+          <button class="pageButton active" data-page="home"><span class="material-symbols-outlined">home</span>Главная</button>
+          <button class="pageButton" data-page="upload"><span class="material-symbols-outlined">cloud_upload</span>Загрузка</button>
+          <button class="pageButton" data-page="history"><span class="material-symbols-outlined">history</span>История</button>
+          <button class="pageButton" data-page="process"><span class="material-symbols-outlined">account_tree</span>Процесс</button>
+          <button class="pageButton" data-page="document"><span class="material-symbols-outlined">dashboard</span>Документ</button>
+          <button class="pageButton" data-page="text"><span class="material-symbols-outlined">article</span>Читаемый текст</button>
+          <button class="pageButton" data-page="tokens"><span class="material-symbols-outlined">data_object</span>Токены</button>
+          <button class="pageButton" data-page="formulas"><span class="material-symbols-outlined">functions</span>Формулы</button>
+          <button class="pageButton" data-page="reader"><span class="material-symbols-outlined">chrome_reader_mode</span>Размеченный текст</button>
+          <button class="pageButton" data-page="variables"><span class="material-symbols-outlined">hub</span>Переменные</button>
+          <button class="pageButton" data-page="visualization"><span class="material-symbols-outlined">insights</span>Визуализация</button>
+          <button class="pageButton" data-page="metrics"><span class="material-symbols-outlined">analytics</span>Аналитика</button>
+          <button class="pageButton" data-page="outputs"><span class="material-symbols-outlined">ios_share</span>Артефакты</button>
+        </nav>
+      </aside>
+
+      <main class="shell">
+        <section class="commandBar">
+          <div class="commandPageTitle">
+            <h2 id="pageTitle">Главная</h2>
+            <p id="pageSubtitle">Быстрый старт обработки научных статей и переход к основным рабочим режимам.</p>
+          </div>
+          <div id="headerDocumentSelector" class="headerDocumentSelector" hidden></div>
+          <div class="commandAppTitle">Обработка научных статей</div>
+        </section>
+
+      <section id="homePage" class="pageView active">
+        <div class="homeHero">
+          <div class="homeHeroText">
+            <span class="homeEyebrow">Обработка научных статей</span>
+            <h1>Извлечение формул, текста и связей из научных документов</h1>
+            <p>Загрузите статью или укажите arXiv ID. После обработки доступны формулы, переменные, размеченный текст, метаграф, технические артефакты и аналитика качества.</p>
+            <div class="homeActions">
+              <button type="button" class="primaryHomeAction" data-home-action="upload"><span class="material-symbols-outlined">cloud_upload</span>Начать обработку</button>
+              <button type="button" data-home-action="history"><span class="material-symbols-outlined">history</span>Открыть историю</button>
+            </div>
+          </div>
+          <div class="homeQuickPanel">
+            <strong>Порядок обработки</strong>
+            <div><span>1</span><p>PDF/TeX загружается в пайплайн</p></div>
+            <div><span>2</span><p>TeX-источник используется первым, если включен приоритет</p></div>
+            <div><span>3</span><p>Формулы и переменные связываются в проверяемый граф</p></div>
+            <div><span>4</span><p>Артефакты можно скачать ZIP-архивом</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="uploadPage" class="panel controls pageView">
+        <form id="uploadForm" class="uploadConsole">
+          <div class="uploadMainColumn">
+            <label class="fileDrop">
+              <input id="fileInput" name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp,.webp" multiple />
+              <span class="material-symbols-outlined fileDropIcon">upload_file</span>
+              <strong>Перетащите научную статью</strong>
+              <small id="fileName">Выберите PDF, вставьте файл из буфера или укажите arXiv ID</small>
+            </label>
+            <div class="pipelinePreview">
+              <div class="pipelinePreviewTop">
+                <strong id="progressLabel">Состояние обработки</strong>
+                <span id="progressValue">0%</span>
+              </div>
+              <div class="pipelinePreviewTrack"><span id="progressFill" style="width: 0%"></span></div>
+              <div id="progressHint" class="progressHint">Готов к запуску.</div>
+              <div id="uploadProcessLog" class="uploadProcessLog"></div>
+            </div>
+            <div id="uploadBatchStatus" class="uploadBatchStatus"></div>
+          </div>
+          <aside class="enginePanel">
+            <div class="enginePanelHeader">
+              <div><span class="material-symbols-outlined">tune</span><strong>Параметры запуска</strong></div>
+            </div>
+          <input id="ocrMode" name="ocr_mode" type="hidden" value="standard" />
+          <div class="grid">
+            <label>
+              Устройство
+              <select id="deviceMode" name="device_mode">
+                <option value="auto" selected>auto</option>
+                <option value="cpu">cpu</option>
+                <option value="gpu">gpu</option>
+              </select>
+            </label>
+            <label>
+              Язык
+              <select id="ocrLang" name="ocr_lang">
+                <option value="auto" selected>auto</option>
+                <option value="ru">ru</option>
+                <option value="en">en</option>
+              </select>
+            </label>
+            <label>
+              Страниц
+              <input id="maxPages" name="max_pages" type="number" min="0" max="100" value="0" title="0 = все страницы" />
+            </label>
+            <label>
+              DPI
+              <input id="renderDpi" name="render_dpi" type="number" min="120" max="600" step="10" value="300" />
+            </label>
+          </div>
+
+          <div class="texGrid">
+            <label>
+              arXiv ID / e-print
+              <textarea id="arxivId" name="arxiv_id" rows="3" placeholder="2605.02988v1&#10;2605.12366"></textarea>
+              <small>Можно указать несколько ID через пробел, запятую или с новой строки.</small>
+            </label>
+            <label class="checkLabel">
+              <input id="preferTexSource" name="prefer_tex_source" type="checkbox" checked />
+              <span>Использовать TeX как основной источник формул</span>
+            </label>
+          </div>
+
+          <section class="randomArxivPanel">
+            <div class="randomArxivHeader">
+              <strong>Случайные статьи arXiv</strong>
+              <span>Запуск пакетного анализа без ручного ввода ID.</span>
+            </div>
+            <div class="randomArxivGrid">
+              <label>
+                Количество
+                <input id="randomArxivCount" type="number" min="1" max="20" value="3" />
+              </label>
+              <label>
+                Категория
+                <select id="randomArxivCategory">
+                  <option value="math" selected>math</option>
+                  <option value="cs">cs</option>
+                  <option value="physics">physics</option>
+                  <option value="stat">stat</option>
+                  <option value="all">Все</option>
+                </select>
+              </label>
+            </div>
+            <button id="randomArxivButton" type="button" class="secondaryButton">Запустить анализ случайных статей</button>
+          </section>
+
+          <button id="submitButton" type="submit">Запустить обработку</button>
+          </aside>
+        </form>
+      </section>
+
+      <section class="summary">
+        <div class="metric">
+          <span>Статус</span>
+          <strong id="resultStatus">-</strong>
+        </div>
+        <div class="metric">
+          <span>Текстовые блоки</span>
+          <strong id="textCount">0</strong>
+        </div>
+        <div class="metric">
+          <span>Формулы</span>
+          <strong id="formulaCount">0</strong>
+        </div>
+        <div class="metric">
+          <span>Токены / регионы</span>
+          <strong id="tokenCount">0 / 0</strong>
+        </div>
+        <div class="metric">
+          <span>Связи</span>
+          <strong id="graphCount">0 / 0</strong>
+        </div>
+        <div class="metric">
+          <span>Метаграф</span>
+          <strong id="metagraphCount">0 / 0</strong>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div id="warnings" class="warnings"></div>
+        <div id="documentPage" class="pageView"></div>
+        <div id="textPage" class="pageView"></div>
+        <div id="tokensPage" class="pageView"></div>
+        <div id="formulasPage" class="pageView"></div>
+        <div id="variablesPage" class="pageView"></div>
+        <div id="visualizationPage" class="pageView"></div>
+        <div id="processPage" class="pageView"></div>
+        <div id="metricsPage" class="pageView"></div>
+        <div id="readerPage" class="pageView"></div>
+        <div id="outputsPage" class="pageView"></div>
+        <div id="batchPage" class="pageView"></div>
+        <div id="historyPage" class="pageView historyPanel"></div>
+      </section>
+    </main>
+    </div>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+    <div id="overlayModal" class="overlayModal" hidden>
+      <div class="overlayModalBackdrop" data-overlay-close></div>
+      <div class="overlayModalDialog" role="dialog" aria-modal="true" aria-labelledby="overlayModalTitle">
+        <div class="overlayModalTop">
+          <div>
+            <strong id="overlayModalTitle">Страница с оверлеем</strong>
+            <div id="overlayModalMeta" class="overlayModalMeta"></div>
+          </div>
+          <button id="overlayModalClose" type="button" class="overlayModalClose" aria-label="Закрыть">Закрыть</button>
+        </div>
+        <div id="overlayModalViewport" class="overlayModalViewport"></div>
+      </div>
+    </div>
+    <script src="./assets/graph-layout.js?v=20260525-graph5"></script>
+    <script src="./assets/graph-details.js?v=20260525-graph2"></script>
+    <script src="./assets/graph-visualization.js?v=20260526-graph1"></script>
+    <script src="./assets/visualization-react.js?v=20260525-rf5"></script>
+    <script src="./assets/app.js?v=20260526-app1"></script>
+  </body>
+</html>
+
+
