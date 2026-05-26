@@ -123,16 +123,11 @@ docker-compose.yml локальный запуск контейнера
 docker-compose.cuda.yml override для NVIDIA GPU
 ```
 
-## Что не коммитить
-
 В `.gitignore` уже исключены:
 
 - `.venv/`, `node_modules/`, `__pycache__/`, `.pytest_cache/`;
 - `data/input`, `data/processed`, `data/results`, `data/models`, `data/sources`;
 - `reference/`, локальные логи, скриншоты проверок, временные каталоги и `output/`.
-
-Перед публикацией на GitHub достаточно проверить:
-
 ```bash
 git status
 docker compose build
