@@ -1,6 +1,6 @@
 .rfProjection {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 10px;
   height: calc(100vh - var(--header-height) - 28px);
   min-height: 620px;
@@ -150,6 +150,28 @@
   gap: 9px;
 }
 
+.rfDetailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rfDetailActions button {
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid #d8c3aa;
+  border-radius: 8px;
+  background: #fff8ed;
+  color: #4c3216;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.rfDetailActions button:hover {
+  border-color: var(--accent);
+  background: #ffe8c5;
+}
+
 .rfDetailField {
   display: grid;
   gap: 4px;
@@ -162,7 +184,8 @@
 }
 
 .rfDetailField > strong,
-.rfDetailField > pre {
+.rfDetailField > pre,
+.rfLatexRender {
   margin: 0;
   padding: 8px 10px;
   border: 1px solid #ead8c5;
@@ -172,6 +195,40 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font-size: 12px;
+}
+
+.rfLatexRender {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.rfLatexRender .katex-display {
+  margin: 0;
+  text-align: left;
+}
+
+.rfMath {
+  display: inline-block;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  vertical-align: middle;
+  text-overflow: ellipsis;
+}
+
+.rfMath .katex {
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.rfMathDisplay {
+  display: block;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.rfSymbolRender {
+  text-align: left !important;
 }
 
 .rfNode {
@@ -209,6 +266,10 @@
   font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.rfNode-variable strong {
+  font-size: 15px;
 }
 
 .rfNode.chip {

@@ -1707,6 +1707,54 @@ button:disabled {
   text-align: right;
 }
 
+.metricPanel .metricRowStacked {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+}
+
+.metricPanel .metricRowStacked > strong {
+  max-width: none;
+  width: 100%;
+  text-align: left;
+}
+
+.metricBreakdown {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 12px;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #edf1f7;
+}
+
+.metricBreakdown dt,
+.metricBreakdown dd {
+  min-width: 0;
+  margin: 0;
+  padding: 6px 0;
+  border-top: 1px solid #edf1f7;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.metricBreakdown dt:first-of-type,
+.metricBreakdown dd:first-of-type {
+  border-top: 0;
+}
+
+.metricBreakdown dt {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+
+.metricBreakdown dd {
+  color: var(--ink);
+  font-weight: 700;
+  text-align: right;
+}
+
 .qualityFlags {
   display: flex;
   flex-wrap: wrap;
