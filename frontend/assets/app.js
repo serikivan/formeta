@@ -1556,7 +1556,7 @@ function latexReadableFallback(latex) {
 
 function formulaSymbols(formula) {
   const explicit = Array.isArray(formula?.symbols) ? formula.symbols : [];
-  const ignoredCommands = /^(\\)?(frac|sum|prod|int|iint|iiint|oint|lim|min|max|argmin|argmax|det|ker|dim|deg|gcd|lcm|mod|bmod|pmod|Pr|Re|Im|sup|inf|limsup|liminf|left|right|begin|end|sin|cos|tan|log|ln|exp|sqrt|cdot|times|div|circ|cdots|dots|ldots|vdots|ddots|quad|qquad|le|leq|ge|geq|ne|neq|approx|sim|equiv|in|notin|subset|subseteq|supset|supseteq|cup|cap|setminus|forall|exists|land|lor|neg|to|mapsto|rightarrow|leftarrow|Rightarrow|Leftrightarrow|partial|nabla|infty|mathbb|mathcal|mathfrak|mathscr|mathrm|mathit|mathbf|text|mbox|operatorname)$/;
+  const ignoredCommands = /^(\\)?(frac|tfrac|dfrac|cfrac|binom|tbinom|dbinom|sum|prod|int|iint|iiint|oint|lim|min|max|argmin|argmax|det|ker|dim|deg|gcd|lcm|mod|bmod|pmod|Pr|Re|Im|sup|inf|limsup|liminf|left|right|begin|end|sin|cos|tan|log|ln|exp|sqrt|cdot|times|div|circ|cdots|dots|ldots|vdots|ddots|quad|qquad|le|leq|ge|geq|ne|neq|approx|sim|equiv|in|notin|subset|subseteq|supset|supseteq|cup|cap|setminus|forall|exists|land|lor|neg|to|mapsto|rightarrow|leftarrow|Rightarrow|Leftrightarrow|partial|nabla|infty|mathbb|mathcal|mathfrak|mathscr|mathrm|mathit|mathbf|text|mbox|operatorname)$/;
   const ignoredWords = new Set(["cases", "matrix", "pmatrix", "bmatrix", "vmatrix", "array", "align", "aligned", "equation", "split", "gather", "gathered", "operator", "operand", "lhs", "rhs", "root", "where", "if", "then", "for", "and", "or"]);
   const isSymbol = (item) => {
     const value = String(item || "");
@@ -3635,7 +3635,8 @@ function metricCard(title, payload) {
       <h3>${escapeHtml(title)}</h3>
       ${rows.map(([key, value]) => {
         const description = metricDescription(key);
-        return `<div><span title="${escapeAttribute(description)}">${escapeHtml(formatMetricKey(key))}</span><strong>${escapeHtml(formatMetricValue(value))}</strong></div>`;
+        const isBreakdown = isMetricBreakdownValue(value);
+        return `<div class="metricRow ${isBreakdown ? "metricRowStacked" : ""}"><span title="${escapeAttribute(description)}">${escapeHtml(formatMetricKey(key))}</span><strong>${formatMetricValueHtml(value)}</strong></div>`;
       }).join("")}
     </section>
   `;
@@ -3737,6 +3738,28 @@ function formatMetricValue(value) {
   return translateMetricValue(value ?? "-");
 }
 
+function formatMetricValueHtml(value) {
+  if (isMetricBreakdownValue(value)) return formatMetricBreakdownHtml(value);
+  return escapeHtml(formatMetricValue(value));
+}
+
+function isMetricBreakdownValue(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function formatMetricBreakdownHtml(value) {
+  const entries = Object.entries(value || {}).slice(0, 24);
+  if (!entries.length) return escapeHtml("-");
+  return `
+    <dl class="metricBreakdown">
+      ${entries.map(([key, item]) => `
+        <dt title="${escapeAttribute(metricDescription(key))}">${escapeHtml(formatMetricKey(key))}</dt>
+        <dd>${escapeHtml(formatMetricValue(item))}</dd>
+      `).join("")}
+    </dl>
+  `;
+}
+
 function translateMetricValue(value) {
   const text = String(value);
   const map = {
@@ -3785,18 +3808,34 @@ function openArtifactsModal() {
   }
   const modal = ensureArtifactsModal();
   const outputs = artifactOutputs(state.result);
-  modal.querySelector("[data-artifact-list]").innerHTML = outputs.map((item) => `
-    <label class="artifactChoice">
+  modal.querySelector("[data-artifact-list]").innerHTML = outputs.map((item) => {
+    const description = artifactOutputDescription(item);
+    return `
+    <label class="artifactChoice" title="${escapeAttribute(description)}">
       <input type="checkbox" value="${escapeAttribute(item.id)}" ${item.selected ? "checked" : ""} />
       <span>
-        <strong>${escapeHtml(item.label)}</strong>
-        <small>${escapeHtml(item.filename)}</small>
+        <strong title="${escapeAttribute(description)}">${escapeHtml(item.label)}</strong>
+        <small title="${escapeAttribute(description)}">${escapeHtml(item.filename)}</small>
       </span>
     </label>
-  `).join("");
+  `;
+  }).join("");
   modal.querySelector("[data-artifact-status]").textContent = "";
   modal.hidden = false;
   document.body.classList.add("modalOpen");
+}
+
+function artifactOutputDescription(item) {
+  const descriptions = {
+    result: "Полный результат обработки документа: распознанные блоки, формулы, граф, предупреждения и служебные данные пайплайна.",
+    structured: "Структурированное представление документа: страницы, текстовые блоки, формулы и их контекст в удобной иерархии.",
+    graph_ready: "Данные метаграфа в формате, подготовленном для построения и анализа графовой модели.",
+    rich_metagraph: "Расширенный метаграф с метавершинами, метаребрами, атрибутами и дополнительной семантикой.",
+    visualization: "JSON-проекция, которую использует вкладка визуализации для отображения узлов, связей и режимов графа.",
+    metrics: "Метрики текущего метаграфа: связность, покрытие контекстом, статистика формул, переменных и метаребер.",
+    analytics: "Сводная аналитика по сохраненным результатам и корпусу: агрегированные показатели для сравнения документов.",
+  };
+  return descriptions[item?.id] || `Скачать артефакт ${item?.filename || item?.label || "JSON"}.`;
 }
 
 function ensureArtifactsModal() {
@@ -4300,6 +4339,9 @@ function openFormulaDetails({ formulaId = "", token = "", projectionMode = "form
   card.scrollIntoView({ behavior: "smooth", block: "center" });
   setFormulaCardExpanded(card, true, projectionMode);
 }
+
+window.openFormulaDetails = openFormulaDetails;
+window.openVariableSearch = openVariableSearch;
 
 function consumePendingFormulaNavigation() {
   const pending = state.pendingFormulaNavigation;

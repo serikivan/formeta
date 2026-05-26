@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import ReactFlow, {
   Background,
@@ -72,13 +72,6 @@ function VisualizationRoot({ result }) {
   return (
     <ReactFlowProvider>
       <div className="rfProjection">
-        <header className="rfProjectionTop">
-          <div>
-            <strong>Объяснимая визуализация</strong>
-            <span>Компактные смысловые проекции метаграфа без полного служебного слоя.</span>
-          </div>
-        </header>
-
         <div className="rfProjectionModes">
           {MODES.map(([id, label]) => (
             <button key={id} type="button" className={mode === id ? "active" : ""} onClick={() => setMode(id)}>
@@ -414,12 +407,14 @@ function bucketByLane(nodes) {
 }
 
 function NodeCard({ data }) {
+  const label = data.label || nodeKindLabel(data.kind);
+  const variableLatex = data.kind === "variable" || data.kind === "symbol" ? variableLatexFor(data) : "";
   return (
     <div className={`rfNode rfNode-${cssSafe(data.kind)} ${data.chip ? "chip" : ""} ${data.compact ? "compact" : ""}`}>
       <Handle type="target" position={Position.Top} className="rfHandle" />
       <Handle type="target" position={Position.Left} className="rfHandle" />
       <span>{nodeKindLabel(data.kind, data.astRole)}</span>
-      <strong>{data.label || nodeKindLabel(data.kind)}</strong>
+      <strong>{variableLatex ? <MathRender latex={variableLatex} fallback={label} /> : label}</strong>
       <Handle type="source" position={Position.Right} className="rfHandle" />
       <Handle type="source" position={Position.Bottom} className="rfHandle" />
     </div>
@@ -437,11 +432,12 @@ function DetailsSidebar({ details, payload }) {
         <p className="rfMuted">Выберите узел или связь.</p>
       ) : (
         <div className="rfDetailsBody">
+          <DetailActions details={details} />
           <Field label="ID" value={details.id} />
           <Field label="Тип" value={translateKind(details.type || details.kind)} />
-          <Field label="LaTeX" value={details.latex} pre />
+          <LatexField value={details.latex} />
           <Field label="Текст" value={details.text || details.context || details.plain_text} pre />
-          <Field label="Обозначение" value={details.symbol || details.normalized_symbol} />
+          <SymbolField value={details.symbol || details.normalized_symbol} />
           <Field label="Источник" value={translateSource(details.source)} />
           <Field label="Уверенность" value={details.confidence} />
           <Field label="Связанные объекты" value={[...(details.formula_ids || []), ...(details.context_ids || []), ...(details.section_ids || [])].join(", ")} pre />
@@ -450,6 +446,103 @@ function DetailsSidebar({ details, payload }) {
       )}
     </aside>
   );
+}
+
+function DetailActions({ details }) {
+  const kind = details.type || details.kind;
+  const formulaId = kind === "formula" ? details.id || details.formula_id : "";
+  const formulaToken = kind === "formula" ? details.token || details.formula_token || "" : "";
+  const symbol = kind === "variable" || kind === "symbol" ? details.normalized_symbol || details.symbol || details.id : "";
+  if (!formulaId && !formulaToken && !symbol) return null;
+  return (
+    <div className="rfDetailActions">
+      {(formulaId || formulaToken) && (
+        <button
+          type="button"
+          onClick={() => window.openFormulaDetails?.({ formulaId, token: formulaToken, projectionMode: "formula_focus" })}
+        >
+          К формуле и графу
+        </button>
+      )}
+      {symbol && (
+        <button type="button" onClick={() => window.openVariableSearch?.(symbol)}>
+          К переменной
+        </button>
+      )}
+    </div>
+  );
+}
+
+function LatexField({ value }) {
+  if (!value) return null;
+  return (
+    <div className="rfDetailField">
+      <span>LaTeX</span>
+      <div className="rfLatexRender">
+        <MathRender latex={value} fallback={String(value)} display />
+      </div>
+    </div>
+  );
+}
+
+function SymbolField({ value }) {
+  if (!value) return null;
+  return (
+    <div className="rfDetailField">
+      <span>Обозначение</span>
+      <strong className="rfSymbolRender">
+        <MathRender latex={variableLatexFor({ label: value })} fallback={String(value)} />
+      </strong>
+    </div>
+  );
+}
+
+function MathRender({ latex, fallback, display = false }) {
+  const ref = useRef(null);
+  const normalized = normalizeLatex(latex);
+  useEffect(() => {
+    if (!ref.current || !normalized || !window.katex) return;
+    try {
+      window.katex.render(normalized, ref.current, { throwOnError: false, displayMode: display });
+    } catch (_error) {
+      ref.current.textContent = fallback || normalized;
+    }
+  }, [display, fallback, normalized]);
+  if (!normalized) return fallback || "";
+  return <span ref={ref} className={display ? "rfMath rfMathDisplay" : "rfMath"}>{fallback || normalized}</span>;
+}
+
+function normalizeLatex(value = "") {
+  return String(value)
+    .trim()
+    .replace(/^\$\$|\$\$$/g, "")
+    .replace(/^\$|\$$/g, "")
+    .replace(/^\\\(|\\\)$/g, "")
+    .replace(/^\\\[|\\\]$/g, "")
+    .trim();
+}
+
+function variableLatexFor(data = {}) {
+  const details = data.details || data;
+  const value = details.latex || details.symbol || details.normalized_symbol || data.label || "";
+  return isVariableLikeSymbol(value) ? value : "";
+}
+
+function isVariableLikeSymbol(value = "") {
+  const normalized = normalizeLatex(value);
+  if (!normalized) return false;
+  const bare = normalized.replace(/^\\/, "");
+  const ignoredCommands = new Set([
+    "frac", "tfrac", "dfrac", "cfrac", "binom", "tbinom", "dbinom", "sum", "prod", "int", "iint", "iiint", "oint",
+    "lim", "min", "max", "argmin", "argmax", "det", "ker", "dim", "deg", "gcd", "lcm", "mod", "bmod", "pmod",
+    "Pr", "Re", "Im", "sup", "inf", "limsup", "liminf", "left", "right", "begin", "end", "sin", "cos", "tan",
+    "log", "ln", "exp", "sqrt", "cdot", "times", "div", "circ", "cdots", "dots", "ldots", "vdots", "ddots",
+    "quad", "qquad", "le", "leq", "ge", "geq", "ne", "neq", "approx", "sim", "equiv", "in", "notin",
+    "subset", "subseteq", "supset", "supseteq", "cup", "cap", "setminus", "forall", "exists", "land", "lor",
+    "neg", "to", "mapsto", "rightarrow", "leftarrow", "Rightarrow", "Leftrightarrow", "partial", "nabla",
+    "infty", "mathbb", "mathcal", "mathfrak", "mathscr", "mathrm", "mathit", "mathbf", "text", "mbox", "operatorname",
+  ]);
+  return !ignoredCommands.has(bare);
 }
 
 function Field({ label, value, pre = false, json = false }) {

@@ -43,6 +43,12 @@ STYLE_COMMANDS = {"\\mathbb", "\\mathcal", "\\mathfrak", "\\mathscr", "\\mathbf"
 
 IGNORED_COMMANDS = {
     "\\frac",
+    "\\tfrac",
+    "\\dfrac",
+    "\\cfrac",
+    "\\binom",
+    "\\tbinom",
+    "\\dbinom",
     "\\sum",
     "\\prod",
     "\\int",
@@ -139,6 +145,12 @@ IGNORED_COMMANDS = {
 }
 OPERATOR_COMMANDS = {
     "\\frac",
+    "\\tfrac",
+    "\\dfrac",
+    "\\cfrac",
+    "\\binom",
+    "\\tbinom",
+    "\\dbinom",
     "\\sum",
     "\\prod",
     "\\int",
@@ -913,6 +925,20 @@ def _formula_semantic_payload(formula: GraphReadyFormula) -> dict[str, Any]:
 
 def search_variable_in_graph_ready(doc: GraphReadyDocument, query: str) -> dict[str, Any]:
     normalized_query = normalize_symbol(query)
+    if not _is_variable_symbol(normalized_query):
+        return {
+            "document_id": doc.document_id,
+            "query": query,
+            "normalized_query": normalized_query,
+            "matches_count": 0,
+            "variable": None,
+            "matches": [],
+            "definitions": [],
+            "related_variables": [],
+            "related_formulas": [],
+            "scope": None,
+            "neighborhood": {"nodes": [], "edges": []},
+        }
     variables = [var for var in doc.variables if var.normalized_symbol == normalized_query]
     fallback = False
     if not variables:

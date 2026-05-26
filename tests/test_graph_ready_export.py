@@ -174,12 +174,39 @@ def test_indexed_variable_normalization():
 def test_formula_symbol_extraction_ignores_operators_and_environments():
     symbols = set(
         extract_formula_symbols(
-            r"\begin{cases}\phi_0(z)=\frac{1-i}{2}(z-s)+s \\ \phi_1(z)=\det A+\ker T+\sup B+\cdots\circ \mathbb{R}^{n}\qquad C\end{cases}"
+            r"\begin{cases}\phi_0(z)=\frac{1-i}{2}(z-s)+s \\ \phi_1(z)=\det A+\ker T+\sup B+\cdots\circ \mathbb{R}^{n}\qquad C+\tfrac{a}{b}\end{cases}"
         )
     )
 
     assert {"\\phi", "z", "s", "A", "T", "B", "\\mathbb{R}", "n", "C"} <= symbols
-    assert not {"cases", "frac", "det", "ker", "sup", "begin", "end", "operator", "operand", "cdots", "circ", "mathbb", "qquad", "R"} & symbols
+    assert not {"cases", "frac", "tfrac", "det", "ker", "sup", "begin", "end", "operator", "operand", "cdots", "circ", "mathbb", "qquad", "R"} & symbols
+
+
+def test_fraction_commands_are_not_variables():
+    result = ProcessingResult(
+        document_id="doc_tfrac",
+        filename="article.pdf",
+        created_at=datetime(2026, 5, 21, 12, 0, 0),
+        status="ok",
+        formulas=[
+            FormulaBlock(
+                id="f_tfrac",
+                page_number=1,
+                latex=r"y=\tfrac{a}{b}",
+                kind="inline",
+                token="[FORMULA_001]",
+            )
+        ],
+    )
+    doc = build_graph_ready_document(
+        result,
+        build_structured_document(result, prefer_tex_source=False),
+    )
+    variables = {variable.normalized_symbol for variable in doc.variables}
+
+    assert {"y", "a", "b"} <= variables
+    assert r"\tfrac" not in variables
+    assert search_variable_in_graph_ready(doc, r"\tfrac")["matches_count"] == 0
 
 
 def test_formula_symbol_extraction_keeps_subscripts_with_variables_not_operators():
